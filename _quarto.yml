@@ -8,8 +8,12 @@ website:
     left:
       - href: index.qmd
         text: Home
-      - about.qmd
       - eurobasket.qmd
+    right:
+      - icon: github
+        href: https://github.com/mattdiekmann
+      - icon: linkedin
+        href: https://www.linkedin.com/in/matthewdiekmann/
 
 format:
   html:

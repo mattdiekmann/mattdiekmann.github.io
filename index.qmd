@@ -1,11 +1,5 @@
 ---
-title: "Matthew Diekmann"
+title: "Matthew Diekmann's personal website"
 ---
 
-This is a Quarto website.
-
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
-
-```{r}
-1 + 1
-```
+Hello, I am a student-athlete at Pomona college studying Mathematics and Data Science. This site will be the home for my personal projects, typically in R.
