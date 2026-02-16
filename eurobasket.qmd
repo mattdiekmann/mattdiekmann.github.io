@@ -1,13 +1,5 @@
 ---
 title: "Exploring EuroLeague Basketball Team Performance, a Tidy Tuesdays Visualization"
-format:
-  html:
-    embed-resources: true
-    self-contained: true
-    toc: false   # optional
-execute:
-  freeze: auto  # optional but recommended
-editor: visual
 ---
 
 ```{r message=FALSE, warning=FALSE}

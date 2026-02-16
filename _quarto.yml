@@ -14,7 +14,7 @@ website:
 format:
   html:
     theme:
-      - cosmo
+      - jolla
       - brand
     css: styles.css
     toc: true

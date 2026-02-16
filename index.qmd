@@ -1,5 +1,5 @@
 ---
-title: "mattdiekmann.github.io"
+title: "Matthew Diekmann"
 ---
 
 This is a Quarto website.
