@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>EuroBasket Team Success Trends</title>
+<title>EuroBasket Team Success Trends – Welcome to my website!</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -125,6 +125,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <div class="navbar-brand-container mx-auto">
     <a href="./index.html" class="navbar-brand navbar-brand-logo">
     </a>
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Welcome to my website!</span>
+    </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -164,14 +167,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content column-page" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -180,7 +183,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="quarto-title-meta">
+<div class="quarto-title-meta column-page">
 
     
   
@@ -192,11 +195,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
+<p>This project uses the <strong>tidyverse</strong> and <strong>plotly</strong> packages to explore relationships among EuroLeague basketball teams. The <strong>tidyverse</strong> is used for data cleaning and transformation, while <strong>plotly</strong> is used to create an interactive visualization that allows comparison across multiple team performance metrics.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tidyverse)</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plotly)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>This project uses the <strong>tidyverse</strong> and <strong>plotly</strong> packages to explore relationships among EuroLeague basketball teams. The <strong>tidyverse</strong> is used for data cleaning and transformation, while <strong>plotly</strong> is used to create an interactive visualization that allows comparison across multiple team performance metrics.</p>
+<p>The dataset is imported directly from the TidyTuesday GitHub repository and contains information about EuroLeague basketball teams. This includes arena capacity, last season’s ranking, Final Four appearances, and titles won.</p>
+<p>Several cleaning steps are performed to prepare the data for analysis or visualization. Arena capacity values are separated and converted into numeric format so they can be used in quantitative comparisons. The last season ranking is extracted as a numeric value from text, and teams with missing rankings are assigned a value of 20 to indicate a lower ranking position. The dataset is then reorganized to prioritize key variables relevant to team performance and infrastructure.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>euroleague_basketball <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">'https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-10-07/euroleague_basketball.csv'</span>) <span class="sc">|&gt;</span> </span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">capacity =</span> <span class="fu">str_split</span>(Capacity, <span class="st">", "</span>)) <span class="sc">|&gt;</span> </span>
@@ -206,8 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">lastrank =</span> <span class="fu">ifelse</span>(<span class="fu">is.na</span>(lastrank), <span class="dv">20</span>, lastrank)) <span class="sc">|&gt;</span> </span>
 <span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(Team, Country, capacity, lastrank, FinalFour_Appearances, Titles_Won, <span class="fu">everything</span>())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>The dataset is imported directly from the TidyTuesday GitHub repository and contains information about EuroLeague basketball teams. This includes arena capacity, last season’s ranking, Final Four appearances, and titles won.</p>
-<p>Several cleaning steps are performed to prepare the data for analysis or visualization. Arena capacity values are separated and converted into numeric format so they can be used in quantitative comparisons. The last season ranking is extracted as a numeric value from text, and teams with missing rankings are assigned a value of 20 to indicate a lower ranking position. The dataset is then reorganized to prioritize key variables relevant to team performance and infrastructure.</p>
+<p>To prepare the data for visualization, numeric identifiers are created for both teams and countries. These identifiers allow categorical variables to be represented properly in the parallel coordinates plot. While the identifiers are numeric, they are only used to support visualization and correspond directly to team and country labels.</p>
 <div class="cell">
 <div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>el_basket_plot <span class="ot">&lt;-</span> euroleague_basketball[<span class="dv">1</span><span class="sc">:</span><span class="dv">6</span>] <span class="sc">|&gt;</span> </span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
@@ -215,53 +219,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">country_id =</span> <span class="fu">as.numeric</span>(<span class="fu">factor</span>(Country))</span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  )</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 </div>
-<p>To prepare the data for visualization, numeric identifiers are created for both teams and countries. These identifiers allow categorical variables to be represented properly in the parallel coordinates plot. While the identifiers are numeric, they are only used to support visualization and correspond directly to team and country labels.</p>
-<div class="cell">
-<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>el_basket_plot <span class="sc">|&gt;</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot_ly</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">type =</span> <span class="st">'parcoords'</span>,</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">width =</span> <span class="dv">800</span>,</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">height =</span> <span class="dv">500</span>,</span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">line =</span> <span class="fu">list</span>(</span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="sc">~</span>country_id,</span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">colorscale =</span> <span class="st">'Rainbow'</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  ),</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  <span class="at">dimensions =</span> <span class="fu">list</span>(</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Team"</span>, <span class="at">values =</span> <span class="sc">~</span>team_id,</span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>         <span class="at">tickvals =</span> <span class="fu">unique</span>(el_basket_plot<span class="sc">$</span>team_id),</span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>         <span class="at">ticktext =</span> <span class="fu">unique</span>(el_basket_plot<span class="sc">$</span>Team)),</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">label =</span> <span class="st">"Capacity"</span>, <span class="at">values =</span> <span class="sc">~</span>capacity),</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">"Last Rank"</span>,</span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="sc">~</span><span class="dv">21</span> <span class="sc">-</span> lastrank,</span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">tickvals =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">16</span>, <span class="dv">11</span>, <span class="dv">6</span>, <span class="dv">1</span>),</span>
-<span id="cb4-21"><a href="#cb4-21" aria-hidden="true" tabindex="-1"></a>      <span class="at">ticktext =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">5</span>, <span class="dv">10</span>, <span class="dv">15</span>, <span class="dv">20</span>)</span>
-<span id="cb4-22"><a href="#cb4-22" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb4-23"><a href="#cb4-23" aria-hidden="true" tabindex="-1"></a>    </span>
-<span id="cb4-24"><a href="#cb4-24" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
-<span id="cb4-25"><a href="#cb4-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">"Final Fours"</span>,</span>
-<span id="cb4-26"><a href="#cb4-26" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="sc">~</span>FinalFour_Appearances,</span>
-<span id="cb4-27"><a href="#cb4-27" aria-hidden="true" tabindex="-1"></a>      <span class="at">tickvals =</span> <span class="fu">sort</span>(<span class="fu">unique</span>(el_basket_plot<span class="sc">$</span>FinalFour_Appearances))</span>
-<span id="cb4-28"><a href="#cb4-28" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb4-29"><a href="#cb4-29" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(</span>
-<span id="cb4-30"><a href="#cb4-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">label =</span> <span class="st">"Titles"</span>,</span>
-<span id="cb4-31"><a href="#cb4-31" aria-hidden="true" tabindex="-1"></a>      <span class="at">values =</span> <span class="sc">~</span>Titles_Won,</span>
-<span id="cb4-32"><a href="#cb4-32" aria-hidden="true" tabindex="-1"></a>      <span class="at">tickvals =</span> <span class="fu">sort</span>(<span class="fu">unique</span>(el_basket_plot<span class="sc">$</span>Titles_Won))</span>
-<span id="cb4-33"><a href="#cb4-33" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb4-34"><a href="#cb4-34" aria-hidden="true" tabindex="-1"></a>  )</span>
-<span id="cb4-35"><a href="#cb4-35" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> </span>
-<span id="cb4-36"><a href="#cb4-36" aria-hidden="true" tabindex="-1"></a><span class="fu">layout</span>(</span>
-<span id="cb4-37"><a href="#cb4-37" aria-hidden="true" tabindex="-1"></a>  <span class="at">margin =</span> <span class="fu">list</span>(<span class="at">l =</span> <span class="dv">150</span>, <span class="at">r =</span> <span class="dv">50</span>, <span class="at">t =</span> <span class="dv">0</span>, <span class="at">b =</span> <span class="dv">50</span>)</span>
-<span id="cb4-38"><a href="#cb4-38" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
-<div class="cell-output-display">
-<div id="htmlwidget-d8f6b2e3b7f5d5a741da" style="width:100%;height:406px;" class="plotly html-widget"></div>
-<script type="application/json" data-for="htmlwidget-d8f6b2e3b7f5d5a741da">{"x":{"visdat":{"c419d79413d":["function () ","plotlyVisDat"]},"cur_data":"c419d79413d","attrs":{"c419d79413d":{"line":{"color":{},"colorscale":"Rainbow"},"dimensions":[{"label":"Team","values":{},"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"ticktext":["Anadolu Efes","Barcelona","Baskonia","Bayern Munich","Crvena zvezda Meridianbet","Dubai Basketball","Fenerbahce","Hapoel IBI Tel Aviv","LDLC ASVEL","Maccabi Rapyd Tel Aviv","Monaco","Olimpia Milano","Olympiacos","Panathinaikos","Paris Basketball","Partizan","Real Madrid","Valencia Basket","Virtus Olidata Bologna","Zalgiris"]},{"label":"Capacity","values":{}},{"label":"Last Rank","values":{},"tickvals":[20,16,11,6,1],"ticktext":[1,5,10,15,20]},{"label":"Final Fours","values":{},"tickvals":[0,2,3,4,5,7,12,13,14]},{"label":"Titles","values":{},"tickvals":[0,1,2,3,6,7]}],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"parcoords"}},"layout":{"width":800,"height":500,"margin":{"b":50,"l":150,"r":50},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"line":{"color":[10,9,9,2,8,11,10,4,1,1,4,7,5,3,3,1,1,8,9,9,5,5,6],"colorscale":"Rainbow"},"dimensions":[{"label":"Team","values":[1,2,3,4,5,6,7,8,9,9,10,11,12,13,14,15,15,16,17,18,19,19,20],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"ticktext":["Anadolu Efes","Barcelona","Baskonia","Bayern Munich","Crvena zvezda Meridianbet","Dubai Basketball","Fenerbahce","Hapoel IBI Tel Aviv","LDLC ASVEL","Maccabi Rapyd Tel Aviv","Monaco","Olimpia Milano","Olympiacos","Panathinaikos","Paris Basketball","Partizan","Real Madrid","Valencia Basket","Virtus Olidata Bologna","Zalgiris"]},{"label":"Capacity","values":[10000,7585,15431,11500,18386,17000,13000,12373,12523,5556,10383,5000,12700,12300,18300,8000,15705,18386,15000,15600,9980,5570,15415]},{"label":"Last Rank","values":[15,16,7,12,11,1,20,1,6,6,5,19,10,18,17,13,13,9,14,1,4,4,8],"tickvals":[20,16,11,6,1],"ticktext":[1,5,10,15,20]},{"label":"Final Fours","values":[5,0,0,0,0,0,7,0,0,0,0,2,4,14,13,0,0,3,12,0,0,0,2],"tickvals":[0,2,3,4,5,7,12,13,14]},{"label":"Titles","values":[2,0,0,0,0,0,2,0,0,0,0,0,0,3,7,0,0,1,6,0,0,0,1],"tickvals":[0,1,2,3,6,7]}],"type":"parcoords","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-</div>
-</div>
 <p>A parallel coordinates plot is created to visualize and compare multiple performance and infrastructure variables simultaneously. Each vertical axis represents a different variable, including arena capacity, last season ranking, Final Four appearances, and titles won. Each line represents a single team, allowing patterns and relationships across variables to be examined.</p>
 <p>Teams are colored according to their country to show geographic trends and allow easier visual grouping. Using any of the vertical axes, click or drag to highlight the team lines that fit the given criteria. This interactive graph allows a visual comparison of specific EuroLeague teams.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div id="htmlwidget-006ed01a5743d1a65232" style="width:100%;height:406px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-006ed01a5743d1a65232">{"x":{"visdat":{"ca224b102980":["function () ","plotlyVisDat"]},"cur_data":"ca224b102980","attrs":{"ca224b102980":{"line":{"color":{},"colorscale":"Rainbow"},"dimensions":[{"label":"Team","values":{},"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"ticktext":["Anadolu Efes","Barcelona","Baskonia","Bayern Munich","Crvena zvezda Meridianbet","Dubai Basketball","Fenerbahce","Hapoel IBI Tel Aviv","LDLC ASVEL","Maccabi Rapyd Tel Aviv","Monaco","Olimpia Milano","Olympiacos","Panathinaikos","Paris Basketball","Partizan","Real Madrid","Valencia Basket","Virtus Olidata Bologna","Zalgiris"]},{"label":"Capacity","values":{}},{"label":"Last Rank","values":{},"tickvals":[20,16,11,6,1],"ticktext":[1,5,10,15,20]},{"label":"Final Fours","values":{},"tickvals":[0,2,3,4,5,7,12,13,14]},{"label":"Titles","values":{},"tickvals":[0,1,2,3,6,7]}],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"parcoords"}},"layout":{"width":800,"height":500,"margin":{"b":50,"l":150,"r":50},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"line":{"color":[10,9,9,2,8,11,10,4,1,1,4,7,5,3,3,1,1,8,9,9,5,5,6],"colorscale":"Rainbow"},"dimensions":[{"label":"Team","values":[1,2,3,4,5,6,7,8,9,9,10,11,12,13,14,15,15,16,17,18,19,19,20],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"ticktext":["Anadolu Efes","Barcelona","Baskonia","Bayern Munich","Crvena zvezda Meridianbet","Dubai Basketball","Fenerbahce","Hapoel IBI Tel Aviv","LDLC ASVEL","Maccabi Rapyd Tel Aviv","Monaco","Olimpia Milano","Olympiacos","Panathinaikos","Paris Basketball","Partizan","Real Madrid","Valencia Basket","Virtus Olidata Bologna","Zalgiris"]},{"label":"Capacity","values":[10000,7585,15431,11500,18386,17000,13000,12373,12523,5556,10383,5000,12700,12300,18300,8000,15705,18386,15000,15600,9980,5570,15415]},{"label":"Last Rank","values":[15,16,7,12,11,1,20,1,6,6,5,19,10,18,17,13,13,9,14,1,4,4,8],"tickvals":[20,16,11,6,1],"ticktext":[1,5,10,15,20]},{"label":"Final Fours","values":[5,0,0,0,0,0,7,0,0,0,0,2,4,14,13,0,0,3,12,0,0,0,2],"tickvals":[0,2,3,4,5,7,12,13,14]},{"label":"Titles","values":[2,0,0,0,0,0,2,0,0,0,0,0,0,3,7,0,0,1,6,0,0,0,1],"tickvals":[0,1,2,3,6,7]}],"type":"parcoords","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+</div>
+</div>
 
 
 
