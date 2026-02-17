@@ -1,5 +1,5 @@
 ---
-title: "EuroBasket analysis"
+title: "EuroBasket Team Success Trends"
 ---
 
 ```{r message=FALSE, warning=FALSE}

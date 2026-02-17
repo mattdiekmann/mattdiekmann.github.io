@@ -3,12 +3,15 @@ project:
   output-dir: docs
 
 website:
-  title: "mattdiekmann.github.io"
+  title: "Welcome to my website!"
   navbar:
     left:
       - href: index.qmd
         text: Home
-      - eurobasket.qmd
+      - href: eurobasket.qmd
+        text: EuroBasket
+      - href: nz_agriculture.qmd
+        text: NZ Agriculture
     right:
       - icon: github
         href: https://github.com/mattdiekmann

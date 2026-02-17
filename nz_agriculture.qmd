@@ -1,0 +1,94 @@
+---
+title: "New Zealand Agriculture and Population Trends"
+---
+
+New Zealand’s agricultural sector has long been central to its economy and identity.
+In this analysis, I combine livestock counts with national population data to explore how animal numbers compare to human population growth over time.
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggplot2)
+library(rvest)
+library(scales)
+```
+
+Cleaning and Preparing the Agriculture Data
+
+First, I load the TidyTuesday dataset and standardize minor naming inconsistencies.
+
+```{r message=FALSE, warning=FALSE}
+dataset <- readr::read_csv(
+  "https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2026/2026-02-17/dataset.csv"
+) |>
+  mutate(
+    measure = case_when(
+      measure == "Total goats" ~ "Total Goats",
+      measure == "Total Dairy Cattle (including Bobby Calves)" ~ "Total Dairy Cattle",
+      measure == "Total Lambs Marked and/or Tailed" ~ "Total Lambs",
+      TRUE ~ measure
+    )
+  )
+
+animals <- dataset |> 
+  filter(measure %in% c(
+    "Total Sheep",
+    "Total Beef Cattle",
+    "Total Dairy Cattle",
+    "Total Deer",
+    "Total Goats", 
+    "Total Lambs",
+    "Total Pigs"
+  ))
+```
+
+Adding New Zealand Population Data
+
+Next, I scrape historical population data and align it by year.
+
+```{r message=FALSE, warning=FALSE}
+pop_nz <- read_html("https://commons.wikimedia.org/wiki/Data:New_Zealand_Total_Population.tab") |>
+  html_elements("table") |> 
+  html_table(header = TRUE) |> 
+  as.data.frame() |> 
+  slice(-(1:2)) |> 
+  mutate(across(everything(), as.numeric)) |> 
+  mutate(pop = y1 * 1000000)
+
+animals_pop <- animals |> 
+  left_join(pop_nz, by = c("year_ended_june" = "x"))
+```
+
+Livestock Counts vs Human Population
+
+The following visualization compares major livestock categories with the total human population.
+Population is scaled to align visually with animal counts and shown on a secondary axis.
+
+```{r}
+scale_factor <- 10
+
+animals_pop |>
+  ggplot(aes(x = year_ended_june, y = value, color = measure)) + 
+  geom_line(linewidth = 1) + 
+  scale_color_brewer(palette = "Set2") + 
+  geom_line(aes(y = pop * scale_factor),
+            linewidth = 1.3,
+            color = "black") +
+  scale_y_continuous(
+    labels = comma,
+    sec.axis = sec_axis(~ . / scale_factor,
+                        name = "Human Population",
+                        labels = comma)
+  ) +
+  labs(
+    title = "New Zealand Livestock Numbers Compared to Human Population",
+    subtitle = "Major livestock categories plotted alongside scaled population totals",
+    x = "Year",
+    y = "Livestock Count",
+    color = "Livestock Category"
+  ) +
+  theme_minimal(base_size = 14) +
+  theme(
+    plot.margin = margin(5, 5, 5, 5),
+    legend.position = "right"
+  )
+```
