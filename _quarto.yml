@@ -12,6 +12,8 @@ website:
         text: EuroBasket
       - href: nz_agriculture.qmd
         text: NZ Agriculture
+      - href: nbagames.qmd
+        text: NBA Games
     right:
       - icon: github
         href: https://github.com/mattdiekmann
