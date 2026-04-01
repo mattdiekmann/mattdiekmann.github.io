@@ -164,3 +164,39 @@ ggplot(score_diff_by_team, aes(x = reorder(home_team_full, avg_score_diff),
 
 It's interesting that only two teams have a negative average score differential at home, with those two teams being considered perennial bottom-tier franchises. We also see many of modern NBA's dominant franchises at the top, including the Spurs and Warriors. This supports the idea that the best teams are superb at home.
 
+However, this isn't exactly the question we are trying to answer. Good franchises will obviously have a good score differential at home, but we want to know the franchises with the best home court advantage. To figure this out, we will find the home advantage by subtracting the average away score differential from the average home score differential.
+
+```{r}
+games <- games %>%
+  mutate(
+    home_score_diff = home_score - away_score,
+    away_score_diff = away_score - home_score
+  )
+
+home_perf <- games %>%
+  group_by(team = home_team_full) %>%
+  summarize(avg_home_diff = mean(home_score_diff))
+
+away_perf <- games %>%
+  group_by(team = away_team_full) %>%
+  summarize(avg_away_diff = mean(away_score_diff))
+
+team_advantage <- home_perf %>%
+  inner_join(away_perf, by = "team") %>%
+  mutate(home_court_advantage = avg_home_diff - avg_away_diff)
+```
+
+Now we will plot the home_court_advantage value for every team to see who actually benefits the most from playing at home(rather than just being an elite franchise).
+
+```{r}
+ggplot(team_advantage,
+       aes(x = reorder(team, home_court_advantage),
+           y = home_court_advantage)) +
+  geom_col() +
+  coord_flip() +
+  labs(title = "True Home Court Advantage by Team",
+       x = "Team",
+       y = "Home Court Advantage (Points)")
+```
+
+The plot shows that all teams perform better at home than on the road, but the size of this advantage varies across teams. It makes sense that the Nuggets and Jazz, who play at a much higher elevation than the rest of the league, would have the strongest advantage. However, every team benefits massively from playing at home as opposed to on the road, with the plot showing every team gains at least a four point swing.
