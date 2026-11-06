@@ -1,2 +1,2 @@
-# datasciencewebsite
-https://mattdiekmann.github.io/datasciencewebsite/
+# Website URL
+https://mattdiekmann.github.io/
