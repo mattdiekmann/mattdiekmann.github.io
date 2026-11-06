@@ -141,6 +141,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <a class="nav-link" href="./sharktank.html"> 
 <span class="menu-text">Shark Tank</span></a>
   </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="./hothand.html"> 
+<span class="menu-text">Hot Hand</span></a>
+  </li>  
   <li class="nav-item dropdown ">
     <a class="nav-link dropdown-toggle" href="#" id="nav-menu-data-viz" role="link" data-bs-toggle="dropdown" aria-expanded="false">
  <span class="menu-text">Data Viz</span>
@@ -401,7 +405,7 @@ Dalla Riva, Chris. <em>Billboard Hot 100 Number Ones Database</em>.<br>
     }
       var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
       var mailtoRegex = new RegExp(/^mailto:/);
-        var filterRegex = new RegExp("https:\/\/mattdiekmann\.github\.io\/datasciencewebsite\/");
+        var filterRegex = new RegExp("https:\/\/mattdiekmann\.github\.io\/");
       var isInternal = (href) => {
           return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
       }

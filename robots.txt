@@ -1,1 +1,1 @@
-Sitemap: https://mattdiekmann.github.io/datasciencewebsite/sitemap.xml
+Sitemap: https://mattdiekmann.github.io/sitemap.xml

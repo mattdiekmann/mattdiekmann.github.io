@@ -1,24 +1,171 @@
 [
   {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "About Me",
+    "objectID": "hothand.html",
+    "href": "hothand.html",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
     "section": "",
-    "text": "Hello! I’m Matthew Diekmann, junior math major at Pomona College.\nWelcome to my website!\nThis website was created for my Foundations of Data Science course and includes two data visualization projects using datasets from TidyTuesday."
+    "text": "In basketball, a player is often described as being “on fire” when they make several consecutive shots. This raises an interesting statistical question: does making consecutive shots actually increase a player’s probability of making the next shot, or can these streaks be explained by random chance? To investigate this, I will analyze Stephen Curry’s 2014–15 MVP season and compare his actual shooting sequences to randomly generated sequences. I will use a simulation-based hypothesis test to determine whether Curry’s shooting performance provides evidence of a hot-hand effect."
   },
   {
-    "objectID": "index.html#what-youll-find-here",
-    "href": "index.html#what-youll-find-here",
-    "title": "About Me",
-    "section": "What you’ll find here",
-    "text": "What you’ll find here\nThe Shark Tank tab has a text analysis of 415 Shark Tank pitches, attempting to discover trends for which types of products and pitches earn deals. The Data Viz menu contains two TidyTuesday analyses that use R to explore and visualize different datasets."
+    "objectID": "hothand.html#introduction",
+    "href": "hothand.html#introduction",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "",
+    "text": "In basketball, a player is often described as being “on fire” when they make several consecutive shots. This raises an interesting statistical question: does making consecutive shots actually increase a player’s probability of making the next shot, or can these streaks be explained by random chance? To investigate this, I will analyze Stephen Curry’s 2014–15 MVP season and compare his actual shooting sequences to randomly generated sequences. I will use a simulation-based hypothesis test to determine whether Curry’s shooting performance provides evidence of a hot-hand effect."
   },
   {
-    "objectID": "index.html#github",
-    "href": "index.html#github",
-    "title": "About Me",
-    "section": "GitHub",
-    "text": "GitHub\nThe code used to create this website is available on GitHub.\nView the GitHub repository"
+    "objectID": "hothand.html#data",
+    "href": "hothand.html#data",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Data",
+    "text": "Data\nThe dataset contains Curry’s individual field goal attempts during the 2014–15 NBA regular season. It includes whether each shot was made, the game in which it occurred, and the time remaining when the shot was taken. The dataset was obtained from Crawles’ NBA Analytics GitHub repository, which contains historical NBA shot-level data. The data were originally collected from NBA.com and ESPN through NBA Savant.\n\n\nCode\nlibrary(tidyverse)\n\nshots &lt;- read_csv(\"2015_curry_shotdata.csv\")\n\nshots |&gt;\n  summarise(\n    shots = n(),\n    games = n_distinct(espn_game_id),\n    makes = sum(shot_made_flag),\n    fg_pct = mean(shot_made_flag)\n  )\n\n\n# A tibble: 1 × 4\n  shots games makes fg_pct\n  &lt;int&gt; &lt;int&gt; &lt;dbl&gt;  &lt;dbl&gt;\n1  1341    80   653  0.487\n\n\nCurry played 80 regular-season games in 2014–15, making 653 of his 1,341 field goal attempts. His overall shooting percentage was approximately 48.7%.\n\n\nCode\nstopifnot(\n  nrow(shots) == 1341,\n  n_distinct(shots$espn_game_id) == 80,\n  sum(shots$shot_made_flag) == 653\n)"
+  },
+  {
+    "objectID": "hothand.html#preparing-the-data",
+    "href": "hothand.html#preparing-the-data",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Preparing the Data",
+    "text": "Preparing the Data\nBefore investigating shooting streaks, I need to arrange Curry’s shots chronologically. Because the game clock counts down, I arrange the periods in ascending order and the remaining minutes and seconds in descending order. I then use lag() to identify the outcomes of his previous two shots, calculating these separately for each game.\n\n\nCode\ncurry &lt;- shots |&gt;\n  dplyr::arrange(\n    game_date,\n    espn_game_id,\n    period,\n    desc(minutes_remaining),\n    desc(as.numeric(seconds_remaining))\n  ) |&gt;\n  group_by(espn_game_id) |&gt;\n  mutate(\n    previous_1 = dplyr::lag(shot_made_flag),\n    previous_2 = dplyr::lag(shot_made_flag, 2)\n  ) |&gt;\n  ungroup()"
+  },
+  {
+    "objectID": "hothand.html#observed-shooting-performance",
+    "href": "hothand.html#observed-shooting-performance",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Observed Shooting Performance",
+    "text": "Observed Shooting Performance\nI will compare Curry’s shooting percentage after making two consecutive shots with his percentage after missing two consecutive shots. This provides an initial measure of whether his shooting success appears to depend on his recent performance.\n\n\nCode\nobserved &lt;- curry |&gt;\n  filter(previous_1 == previous_2) |&gt;\n  mutate(\n    streak = if_else(\n      previous_1 == 1,\n      \"After 2 Makes\",\n      \"After 2 Misses\"\n    )\n  ) |&gt;\n  group_by(streak) |&gt;\n  summarise(\n    attempts = n(),\n    fg_pct = mean(shot_made_flag),\n    .groups = \"drop\"\n  )\n\nobserved\n\n\n# A tibble: 2 × 3\n  streak         attempts fg_pct\n  &lt;chr&gt;             &lt;int&gt;  &lt;dbl&gt;\n1 After 2 Makes       272  0.441\n2 After 2 Misses      287  0.512\n\n\n\n\nCode\nggplot(observed, aes(x = streak, y = fg_pct, fill = streak)) +\n  geom_col(width = 0.6) +\n  scale_y_continuous(\n    labels = scales::percent,\n    limits = c(0, 1)\n  ) +\n  scale_fill_manual(\n    values = c(\"After 2 Makes\" = \"steelblue\",\n               \"After 2 Misses\" = \"orange\")\n  ) +\n  labs(\n    title = \"Curry's Shooting Percentage After Two Makes or Misses\",\n    subtitle = \"2014–15 NBA Regular Season\",\n    x = \"Previous Two Shot Outcomes\",\n    y = \"Field Goal Percentage\",\n    fill = \"Previous Shots\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThe graph shows that Curry actually had a lower shooting percentage after making two consecutive shots than after missing two consecutive shots. His field goal percentage was approximately 44% after two makes, compared to 51% after two misses, a difference of about 7.1 percentage points. This is the opposite of what I initially expected, since the hot-hand hypothesis predicts a higher shooting percentage following consecutive makes. Although this appears to suggest a possible cold-hand effect, the difference could still be explained by random variation. I will first test my original hot-hand hypothesis and then investigate whether the negative difference itself is statistically unusual."
+  },
+  {
+    "objectID": "hothand.html#hypothesis-test",
+    "href": "hothand.html#hypothesis-test",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Hypothesis Test",
+    "text": "Hypothesis Test\nThe null hypothesis is that Curry’s makes and misses occur independently within each game, given his number of makes and misses in that game. The alternative hypothesis is that his shooting sequences exhibit a positive hot-hand effect.\nI will use the following test statistic:\n\\[\nT = P(\\text{Make} \\mid MM) - P(\\text{Make} \\mid XX)\n\\]\nHere, \\(MM\\) represents two previous makes and \\(XX\\) represents two previous misses.\nA positive statistic indicates better shooting after consecutive makes."
+  },
+  {
+    "objectID": "hothand.html#simulation",
+    "href": "hothand.html#simulation",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Simulation",
+    "text": "Simulation\nTo simulate shooting under the null hypothesis, I will randomly rearrange Curry’s makes and misses within each game. This preserves his number of successful and unsuccessful shots in every game while removing the original shooting sequences.\nFirst, I write a function to calculate the hot-hand statistic for a dataset.\n\n\nCode\nhot_hand_stat &lt;- function(data) {\n\n  data &lt;- data |&gt;\n    group_by(espn_game_id) |&gt;\n    mutate(\n      previous_1 = dplyr::lag(shot_made_flag),\n      previous_2 = dplyr::lag(shot_made_flag, 2)\n    ) |&gt;\n    ungroup()\n\n  after_makes &lt;- data |&gt;\n    filter(previous_1 == 1, previous_2 == 1)\n\n  after_misses &lt;- data |&gt;\n    filter(previous_1 == 0, previous_2 == 0)\n\n  mean(after_makes$shot_made_flag) -\n    mean(after_misses$shot_made_flag)\n}\n\n\nNext, I write a function that randomly rearranges the shooting outcomes within each game and returns the resulting hot-hand statistic.\n\n\nCode\nsimulate_once &lt;- function(data) {\n\n  simulated &lt;- data |&gt;\n    group_by(espn_game_id) |&gt;\n    mutate(\n        shot_made_flag = sample(shot_made_flag, size = n())\n    ) |&gt;\n    ungroup()\n\n  hot_hand_stat(simulated)\n}\n\n\nI can now use map_dbl() to repeat this simulation 2,000 times. Each simulation produces one numerical value representing the difference in shooting percentages under the null hypothesis.\n\n\nCode\nset.seed(47)\n\nsimulations &lt;- 1:2000 |&gt;\n  map_dbl(\\(i) simulate_once(curry))\n\nobserved_stat &lt;- hot_hand_stat(curry)\n\np_value &lt;- mean(simulations &gt;= observed_stat)\n\nnull_center &lt;- mean(simulations)\n\nobserved_stat\n\n\n[1] -0.07101865\n\n\nCode\np_value\n\n\n[1] 0.87\n\n\nCode\nround(null_center * 100, 2)\n\n\n[1] -2.89"
+  },
+  {
+    "objectID": "hothand.html#simulation-results",
+    "href": "hothand.html#simulation-results",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Simulation Results",
+    "text": "Simulation Results\n\n\nCode\nsim_results &lt;- tibble(statistic = simulations)\n\nggplot(sim_results, aes(x = statistic)) +\n  geom_histogram(\n    bins = 40,\n    fill = \"steelblue\",\n    color = \"white\"\n  ) +\n  geom_vline(\n    aes(xintercept = observed_stat,\n        color = \"Curry's Observed Difference\"),\n    linewidth = 1.2,\n    linetype = \"dashed\"\n  ) +\n  scale_color_manual(\n    values = c(\"Curry's Observed Difference\" = \"red\"),\n    name = NULL\n  ) +\n  scale_x_continuous(\n    labels = scales::percent\n  ) +\n  labs(\n    title = \"Is Curry's Hot-Hand Effect Statistically Significant?\",\n    subtitle = \"2,000 Randomized Shooting Sequences\",\n    x = \"Difference in FG% (After 2 Makes - After 2 Misses)\",\n    y = \"Number of Simulations\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThe histogram displays the distribution of shooting-percentage differences from 2,000 simulations in which Curry’s makes and misses were randomly rearranged within each game. The red dashed line represents Curry’s observed difference of −7.1 percentage points, which falls to the left of most simulated results. Interestingly, the simulated distribution is centered around −2.89 percentage points rather than zero. This is consistent with streak selection bias, a phenomenon discussed by Miller and Sanjurjo (2018), in which calculating shooting percentages after consecutive makes or misses in finite sequences can produce a negative difference even when shots are independent. By comparing Curry’s observed difference to the simulated distribution rather than zero, the permutation test accounts for this bias. The original one-sided hypothesis test produced a p-value of 0.870, so I fail to reject the null hypothesis at the 5% significance level. However, this test was designed to detect a positive hot-hand effect, while Curry’s observed difference was negative. This raises a different question: is his negative shooting-percentage difference unusually large in magnitude, potentially suggesting a cold-hand effect? To explore this possibility, I will conduct an additional two-sided test."
+  },
+  {
+    "objectID": "hothand.html#exploring-a-possible-cold-hand-effect",
+    "href": "hothand.html#exploring-a-possible-cold-hand-effect",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Exploring a Possible Cold-Hand Effect",
+    "text": "Exploring a Possible Cold-Hand Effect\nMy original hypothesis test investigated whether Curry was more likely to make a shot after two consecutive makes. However, because the observed difference was negative, I decided to broaden the investigation to consider whether Curry’s recent shooting outcomes predict his next shot in either direction. A negative relationship could indicate a cold-hand effect, while a positive relationship could indicate a hot-hand effect. I will use the same simulated null distribution to perform an exploratory two-sided test, examining whether Curry’s observed statistic is unusually far from the center of the null distribution.\nFor this exploratory analysis, the hypotheses are:\n\nNull hypothesis: Curry’s shooting sequence is consistent with random ordering of makes and misses within games.\nAlternative hypothesis: Curry’s shooting sequence exhibits an unusually positive or negative dependence on his previous two shots.\n\n\n\nCode\nnull_center &lt;- mean(simulations)\n\nobserved_distance &lt;- abs(observed_stat - null_center)\n\nsimulated_distances &lt;- abs(simulations - null_center)\n\np_value_two &lt;- mean(simulated_distances &gt;= observed_distance)\n\nround(null_center * 100, 2)\n\n\n[1] -2.89\n\n\nCode\np_value_two\n\n\n[1] 0.2555\n\n\nThe simulated null distribution had a mean of approximately −2.89 percentage points, while Curry’s observed difference was −7.10 percentage points. This means his actual statistic was about 4.21 percentage points below the simulated null mean. The exploratory two-sided test produced a p-value of 0.2555, indicating that approximately 25.55% of the randomized shooting sequences produced a difference at least as far from the null mean as Curry’s observed difference. Since this p-value is greater than 0.05, I fail to reject the null hypothesis. Therefore, the data do not provide statistically significant evidence of either a hot-hand or cold-hand effect."
+  },
+  {
+    "objectID": "hothand.html#conclusion",
+    "href": "hothand.html#conclusion",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Conclusion",
+    "text": "Conclusion\nThis simulation study initially investigated whether Stephen Curry exhibited a hot-hand effect during his 2014–15 MVP season. Surprisingly, Curry shot approximately 7.1 percentage points worse after making two consecutive shots than after missing two consecutive shots, leading me to investigate whether this negative difference could indicate a cold-hand effect. The original one-sided test produced a p-value of 0.870, while the exploratory two-sided test produced a p-value of 0.2555. Neither test was statistically significant at the 5% level, so I fail to reject the null hypothesis and cannot conclude that Curry’s shooting sequences exhibit either a hot-hand or cold-hand effect. However, the analysis does not account for differences in shot difficulty, defensive pressure, or shot selection, which could influence shooting percentages independently of previous outcomes."
+  },
+  {
+    "objectID": "hothand.html#data-source",
+    "href": "hothand.html#data-source",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Data Source",
+    "text": "Data Source"
+  },
+  {
+    "objectID": "hothand.html#data-source-1",
+    "href": "hothand.html#data-source-1",
+    "title": "Is the Hot Hand Real? Stephen Curry’s 2014–15 MVP Season",
+    "section": "Data Source",
+    "text": "Data Source\nCrawles. (n.d.). Spark NBA Analytics [GitHub repository]. GitHub."
+  },
+  {
+    "objectID": "tidytuesday2.html",
+    "href": "tidytuesday2.html",
+    "title": "NCAA Men’s March Madness",
+    "section": "",
+    "text": "For this analysis, I used the NCAA Men’s March Madness dataset featured in TidyTuesday.\nThe data come from Nishaan Amin’s March Madness dataset and contain historical team tournament results along with public predictions for tournament teams.\nThe data cover men’s NCAA tournaments from 2008 through 2024, excluding 2020 because the tournament was canceled."
+  },
+  {
+    "objectID": "tidytuesday2.html#about-the-data",
+    "href": "tidytuesday2.html#about-the-data",
+    "title": "NCAA Men’s March Madness",
+    "section": "",
+    "text": "For this analysis, I used the NCAA Men’s March Madness dataset featured in TidyTuesday.\nThe data come from Nishaan Amin’s March Madness dataset and contain historical team tournament results along with public predictions for tournament teams.\nThe data cover men’s NCAA tournaments from 2008 through 2024, excluding 2020 because the tournament was canceled."
+  },
+  {
+    "objectID": "tidytuesday2.html#load-the-data",
+    "href": "tidytuesday2.html#load-the-data",
+    "title": "NCAA Men’s March Madness",
+    "section": "Load the Data",
+    "text": "Load the Data\n\n\nCode\nlibrary(tidyverse)\n\nteam_results &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2024/2024-03-26/team-results.csv\"\n)\n\npublic_picks &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2024/2024-03-26/public-picks.csv\"\n)"
+  },
+  {
+    "objectID": "tidytuesday2.html#which-teams-have-made-the-most-final-fours",
+    "href": "tidytuesday2.html#which-teams-have-made-the-most-final-fours",
+    "title": "NCAA Men’s March Madness",
+    "section": "Which Teams Have Made the Most Final Fours?",
+    "text": "Which Teams Have Made the Most Final Fours?\nThe F4 variable gives the number of times each program reached the Final Four. I looked at the teams with the most Final Four appearances in the dataset.\n\n\nCode\ntop_final_four &lt;- team_results |&gt;\n  filter(F4 &gt; 0) |&gt;\n  arrange(desc(F4)) |&gt;\n  slice_head(n = 15)\n\nggplot(\n  top_final_four,\n  aes(\n    x = reorder(TEAM, F4),\n    y = F4\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Teams With the Most Final Four Appearances\",\n    subtitle = \"NCAA men's tournament results in the TidyTuesday dataset\",\n    x = \"Team\",\n    y = \"Final Four appearances\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThis visualization shows which programs have reached the Final Four most often over the period represented in the dataset."
+  },
+  {
+    "objectID": "tidytuesday2.html#which-teams-did-the-public-most-expect-to-win-in-2024",
+    "href": "tidytuesday2.html#which-teams-did-the-public-most-expect-to-win-in-2024",
+    "title": "NCAA Men’s March Madness",
+    "section": "Which Teams Did the Public Most Expect to Win in 2024?",
+    "text": "Which Teams Did the Public Most Expect to Win in 2024?\nThe public_picks dataset contains the percentage of public brackets that picked each team to advance through each round of the 2024 tournament. The FINALS variable gives the percentage of people who picked each team to win the championship.\nI looked at the 10 teams with the highest championship pick percentages.\n\n\nCode\ntop_public_picks &lt;- public_picks |&gt;\n  mutate(\n    finals_pct = readr::parse_number(FINALS)\n  ) |&gt;\n  filter(!is.na(finals_pct)) |&gt;\n  arrange(desc(finals_pct)) |&gt;\n  slice_head(n = 10)\n\nggplot(\n  top_public_picks,\n  aes(\n    x = reorder(TEAM, finals_pct),\n    y = finals_pct\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Most Popular Public Picks to Win the 2024 Championship\",\n    subtitle = \"Top 10 teams by percentage of public brackets\",\n    x = \"Team\",\n    y = \"Percent of public brackets picking team to win\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nConnecticut was the most popular public choice to win the championship in 2024, while several other highly rated teams also received substantial support. This visualization shows how concentrated public expectations were among the top contenders.\nAs a side note, UCONN went on to have one of the most dominant title runs in March Madness history, winning by a record average margin of 23 points per game."
+  },
+  {
+    "objectID": "tidytuesday2.html#sources",
+    "href": "tidytuesday2.html#sources",
+    "title": "NCAA Men’s March Madness",
+    "section": "Sources",
+    "text": "Sources\nTidyTuesday:\nTidyTuesday — NCAA Men’s March Madness\nOriginal data:\nAmin, Nishaan. March Madness Data. Kaggle. Original March Madness dataset"
+  },
+  {
+    "objectID": "tidytuesday1.html",
+    "href": "tidytuesday1.html",
+    "title": "Billboard Hot 100 Number Ones",
+    "section": "",
+    "text": "For this analysis, I used the Billboard Hot 100 Number Ones dataset featured in TidyTuesday.\nThe dataset contains information about songs that reached number one on the Billboard Hot 100 between 1958 and January 2025. It includes information about the songs’ artists, genres, length, musical characteristics, and chart performance.\nThe original dataset was compiled by Chris Dalla Riva as part of his Billboard Hot 100 Number Ones Database."
+  },
+  {
+    "objectID": "tidytuesday1.html#about-the-data",
+    "href": "tidytuesday1.html#about-the-data",
+    "title": "Billboard Hot 100 Number Ones",
+    "section": "",
+    "text": "For this analysis, I used the Billboard Hot 100 Number Ones dataset featured in TidyTuesday.\nThe dataset contains information about songs that reached number one on the Billboard Hot 100 between 1958 and January 2025. It includes information about the songs’ artists, genres, length, musical characteristics, and chart performance.\nThe original dataset was compiled by Chris Dalla Riva as part of his Billboard Hot 100 Number Ones Database."
+  },
+  {
+    "objectID": "tidytuesday1.html#load-the-data",
+    "href": "tidytuesday1.html#load-the-data",
+    "title": "Billboard Hot 100 Number Ones",
+    "section": "Load the Data",
+    "text": "Load the Data\n\n\nCode\nlibrary(tidyverse)\n\nbillboard &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-08-26/billboard.csv\"\n)\n\ntopics &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-08-26/topics.csv\"\n)"
+  },
+  {
+    "objectID": "tidytuesday1.html#have-number-one-songs-gotten-shorter",
+    "href": "tidytuesday1.html#have-number-one-songs-gotten-shorter",
+    "title": "Billboard Hot 100 Number Ones",
+    "section": "Have Number-One Songs Gotten Shorter?",
+    "text": "Have Number-One Songs Gotten Shorter?\nOne question I was interested in was whether the length of number-one songs has changed over time. The dataset includes length_sec, which measures the length of each song in seconds. I converted this to minutes to make the visualization easier to interpret.\n\n\nCode\nbillboard_length &lt;- billboard |&gt;\n  mutate(\n    year = as.integer(format(date, \"%Y\")),\n    length_min = length_sec / 60\n  ) |&gt;\n  filter(!is.na(length_min))\n\nggplot(\n  billboard_length,\n  aes(x = year, y = length_min)\n) +\n  geom_point(alpha = 0.35) +\n  geom_smooth(se = FALSE, method = \"loess\") +\n  labs(\n    title = \"Length of Billboard Hot 100 Number-One Songs Over Time\",\n    subtitle = \"Each point represents a song that reached number one\",\n    x = \"Year\",\n    y = \"Song length (minutes)\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThe trend line makes it easier to see how the typical length of a number-one song has changed over time. Song lengths increased during parts of the late 20th century, but more recent number-one hits appear to have become shorter."
+  },
+  {
+    "objectID": "tidytuesday1.html#which-genres-have-the-most-number-one-hits",
+    "href": "tidytuesday1.html#which-genres-have-the-most-number-one-hits",
+    "title": "Billboard Hot 100 Number Ones",
+    "section": "Which Genres Have the Most Number-One Hits?",
+    "text": "Which Genres Have the Most Number-One Hits?\nI also wanted to see which genres appear most frequently among number-one songs. The variable cdr_genre gives the genre assigned to each song in the dataset.\n\n\nCode\ntop_genres &lt;- billboard |&gt;\n  filter(!is.na(cdr_genre)) |&gt;\n  count(cdr_genre, sort = TRUE) |&gt;\n  slice_head(n = 10)\n\nggplot(\n  top_genres,\n  aes(\n    x = reorder(cdr_genre, n),\n    y = n\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Genres With the Most Billboard Hot 100 Number-One Songs\",\n    x = \"Genre\",\n    y = \"Number of number-one songs\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThis visualization shows which genres have accounted for the largest number of Billboard Hot 100 number-one songs in the dataset."
+  },
+  {
+    "objectID": "tidytuesday1.html#sources",
+    "href": "tidytuesday1.html#sources",
+    "title": "Billboard Hot 100 Number Ones",
+    "section": "Sources",
+    "text": "Sources\nTidyTuesday:\nTidyTuesday — Billboard Hot 100 Number Ones\nOriginal data:\nDalla Riva, Chris. Billboard Hot 100 Number Ones Database.\nBillboard Hot 100 Number Ones Database"
   },
   {
     "objectID": "sharktank.html",
@@ -84,87 +231,24 @@
     "text": "Data Source\nThe dataset comes from the public GitHub repository AlfonsoCabello/SharkTank, specifically the shark_tank.csv file.\nThe repository contains structured information about pitches from the first six seasons of the television show Shark Tank, including startup descriptions, product categories, deal outcomes, and investment details."
   },
   {
-    "objectID": "tidytuesday1.html",
-    "href": "tidytuesday1.html",
-    "title": "Billboard Hot 100 Number Ones",
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "About Me",
     "section": "",
-    "text": "For this analysis, I used the Billboard Hot 100 Number Ones dataset featured in TidyTuesday.\nThe dataset contains information about songs that reached number one on the Billboard Hot 100 between 1958 and January 2025. It includes information about the songs’ artists, genres, length, musical characteristics, and chart performance.\nThe original dataset was compiled by Chris Dalla Riva as part of his Billboard Hot 100 Number Ones Database."
+    "text": "Hello! I’m Matthew Diekmann, junior math major at Pomona College.\nWelcome to my website!\nThis website was created for my Foundations of Data Science course and includes a variety of projects."
   },
   {
-    "objectID": "tidytuesday1.html#about-the-data",
-    "href": "tidytuesday1.html#about-the-data",
-    "title": "Billboard Hot 100 Number Ones",
-    "section": "",
-    "text": "For this analysis, I used the Billboard Hot 100 Number Ones dataset featured in TidyTuesday.\nThe dataset contains information about songs that reached number one on the Billboard Hot 100 between 1958 and January 2025. It includes information about the songs’ artists, genres, length, musical characteristics, and chart performance.\nThe original dataset was compiled by Chris Dalla Riva as part of his Billboard Hot 100 Number Ones Database."
+    "objectID": "index.html#what-youll-find-here",
+    "href": "index.html#what-youll-find-here",
+    "title": "About Me",
+    "section": "What you’ll find here",
+    "text": "What you’ll find here\nThe Shark Tank tab has a text analysis of 415 Shark Tank pitches, attempting to discover trends for which types of products and pitches earn deals. The Data Viz menu contains two TidyTuesday analyses that use R to explore and visualize different datasets. The Hot Hand tab contains my analysis of Steph Curry’s first MVP season, looking for evidence of the hot hand phenomenon."
   },
   {
-    "objectID": "tidytuesday1.html#load-the-data",
-    "href": "tidytuesday1.html#load-the-data",
-    "title": "Billboard Hot 100 Number Ones",
-    "section": "Load the Data",
-    "text": "Load the Data\n\n\nCode\nlibrary(tidyverse)\n\nbillboard &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-08-26/billboard.csv\"\n)\n\ntopics &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2025/2025-08-26/topics.csv\"\n)"
-  },
-  {
-    "objectID": "tidytuesday1.html#have-number-one-songs-gotten-shorter",
-    "href": "tidytuesday1.html#have-number-one-songs-gotten-shorter",
-    "title": "Billboard Hot 100 Number Ones",
-    "section": "Have Number-One Songs Gotten Shorter?",
-    "text": "Have Number-One Songs Gotten Shorter?\nOne question I was interested in was whether the length of number-one songs has changed over time. The dataset includes length_sec, which measures the length of each song in seconds. I converted this to minutes to make the visualization easier to interpret.\n\n\nCode\nbillboard_length &lt;- billboard |&gt;\n  mutate(\n    year = as.integer(format(date, \"%Y\")),\n    length_min = length_sec / 60\n  ) |&gt;\n  filter(!is.na(length_min))\n\nggplot(\n  billboard_length,\n  aes(x = year, y = length_min)\n) +\n  geom_point(alpha = 0.35) +\n  geom_smooth(se = FALSE, method = \"loess\") +\n  labs(\n    title = \"Length of Billboard Hot 100 Number-One Songs Over Time\",\n    subtitle = \"Each point represents a song that reached number one\",\n    x = \"Year\",\n    y = \"Song length (minutes)\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThe trend line makes it easier to see how the typical length of a number-one song has changed over time. Song lengths increased during parts of the late 20th century, but more recent number-one hits appear to have become shorter."
-  },
-  {
-    "objectID": "tidytuesday1.html#which-genres-have-the-most-number-one-hits",
-    "href": "tidytuesday1.html#which-genres-have-the-most-number-one-hits",
-    "title": "Billboard Hot 100 Number Ones",
-    "section": "Which Genres Have the Most Number-One Hits?",
-    "text": "Which Genres Have the Most Number-One Hits?\nI also wanted to see which genres appear most frequently among number-one songs. The variable cdr_genre gives the genre assigned to each song in the dataset.\n\n\nCode\ntop_genres &lt;- billboard |&gt;\n  filter(!is.na(cdr_genre)) |&gt;\n  count(cdr_genre, sort = TRUE) |&gt;\n  slice_head(n = 10)\n\nggplot(\n  top_genres,\n  aes(\n    x = reorder(cdr_genre, n),\n    y = n\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Genres With the Most Billboard Hot 100 Number-One Songs\",\n    x = \"Genre\",\n    y = \"Number of number-one songs\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThis visualization shows which genres have accounted for the largest number of Billboard Hot 100 number-one songs in the dataset."
-  },
-  {
-    "objectID": "tidytuesday1.html#sources",
-    "href": "tidytuesday1.html#sources",
-    "title": "Billboard Hot 100 Number Ones",
-    "section": "Sources",
-    "text": "Sources\nTidyTuesday:\nTidyTuesday — Billboard Hot 100 Number Ones\nOriginal data:\nDalla Riva, Chris. Billboard Hot 100 Number Ones Database.\nBillboard Hot 100 Number Ones Database"
-  },
-  {
-    "objectID": "tidytuesday2.html",
-    "href": "tidytuesday2.html",
-    "title": "NCAA Men’s March Madness",
-    "section": "",
-    "text": "For this analysis, I used the NCAA Men’s March Madness dataset featured in TidyTuesday.\nThe data come from Nishaan Amin’s March Madness dataset and contain historical team tournament results along with public predictions for tournament teams.\nThe data cover men’s NCAA tournaments from 2008 through 2024, excluding 2020 because the tournament was canceled."
-  },
-  {
-    "objectID": "tidytuesday2.html#about-the-data",
-    "href": "tidytuesday2.html#about-the-data",
-    "title": "NCAA Men’s March Madness",
-    "section": "",
-    "text": "For this analysis, I used the NCAA Men’s March Madness dataset featured in TidyTuesday.\nThe data come from Nishaan Amin’s March Madness dataset and contain historical team tournament results along with public predictions for tournament teams.\nThe data cover men’s NCAA tournaments from 2008 through 2024, excluding 2020 because the tournament was canceled."
-  },
-  {
-    "objectID": "tidytuesday2.html#load-the-data",
-    "href": "tidytuesday2.html#load-the-data",
-    "title": "NCAA Men’s March Madness",
-    "section": "Load the Data",
-    "text": "Load the Data\n\n\nCode\nlibrary(tidyverse)\n\nteam_results &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2024/2024-03-26/team-results.csv\"\n)\n\npublic_picks &lt;- readr::read_csv(\n  \"https://raw.githubusercontent.com/rfordatascience/tidytuesday/main/data/2024/2024-03-26/public-picks.csv\"\n)"
-  },
-  {
-    "objectID": "tidytuesday2.html#which-teams-have-made-the-most-final-fours",
-    "href": "tidytuesday2.html#which-teams-have-made-the-most-final-fours",
-    "title": "NCAA Men’s March Madness",
-    "section": "Which Teams Have Made the Most Final Fours?",
-    "text": "Which Teams Have Made the Most Final Fours?\nThe F4 variable gives the number of times each program reached the Final Four. I looked at the teams with the most Final Four appearances in the dataset.\n\n\nCode\ntop_final_four &lt;- team_results |&gt;\n  filter(F4 &gt; 0) |&gt;\n  arrange(desc(F4)) |&gt;\n  slice_head(n = 15)\n\nggplot(\n  top_final_four,\n  aes(\n    x = reorder(TEAM, F4),\n    y = F4\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Teams With the Most Final Four Appearances\",\n    subtitle = \"NCAA men's tournament results in the TidyTuesday dataset\",\n    x = \"Team\",\n    y = \"Final Four appearances\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nThis visualization shows which programs have reached the Final Four most often over the period represented in the dataset."
-  },
-  {
-    "objectID": "tidytuesday2.html#which-teams-did-the-public-most-expect-to-win-in-2024",
-    "href": "tidytuesday2.html#which-teams-did-the-public-most-expect-to-win-in-2024",
-    "title": "NCAA Men’s March Madness",
-    "section": "Which Teams Did the Public Most Expect to Win in 2024?",
-    "text": "Which Teams Did the Public Most Expect to Win in 2024?\nThe public_picks dataset contains the percentage of public brackets that picked each team to advance through each round of the 2024 tournament. The FINALS variable gives the percentage of people who picked each team to win the championship.\nI looked at the 10 teams with the highest championship pick percentages.\n\n\nCode\ntop_public_picks &lt;- public_picks |&gt;\n  mutate(\n    finals_pct = readr::parse_number(FINALS)\n  ) |&gt;\n  filter(!is.na(finals_pct)) |&gt;\n  arrange(desc(finals_pct)) |&gt;\n  slice_head(n = 10)\n\nggplot(\n  top_public_picks,\n  aes(\n    x = reorder(TEAM, finals_pct),\n    y = finals_pct\n  )\n) +\n  geom_col() +\n  coord_flip() +\n  labs(\n    title = \"Most Popular Public Picks to Win the 2024 Championship\",\n    subtitle = \"Top 10 teams by percentage of public brackets\",\n    x = \"Team\",\n    y = \"Percent of public brackets picking team to win\"\n  ) +\n  theme_minimal()\n\n\n\n\n\n\n\n\n\nConnecticut was the most popular public choice to win the championship in 2024, while several other highly rated teams also received substantial support. This visualization shows how concentrated public expectations were among the top contenders.\nAs a side note, UCONN went on to have one of the most dominant title runs in March Madness history, winning by a record average margin of 23 points per game."
-  },
-  {
-    "objectID": "tidytuesday2.html#sources",
-    "href": "tidytuesday2.html#sources",
-    "title": "NCAA Men’s March Madness",
-    "section": "Sources",
-    "text": "Sources\nTidyTuesday:\nTidyTuesday — NCAA Men’s March Madness\nOriginal data:\nAmin, Nishaan. March Madness Data. Kaggle. Original March Madness dataset"
+    "objectID": "index.html#github",
+    "href": "index.html#github",
+    "title": "About Me",
+    "section": "GitHub",
+    "text": "GitHub\nThe code used to create this website is available on GitHub.\nView the GitHub repository"
   }
 ]

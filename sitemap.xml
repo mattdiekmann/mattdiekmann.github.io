@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://mattdiekmann.github.io/datasciencewebsite/index.html</loc>
-    <lastmod>2026-10-12T07:13:47.893Z</lastmod>
+    <loc>https://mattdiekmann.github.io/hothand.html</loc>
+    <lastmod>2026-11-05T22:21:31.033Z</lastmod>
   </url>
   <url>
-    <loc>https://mattdiekmann.github.io/datasciencewebsite/sharktank.html</loc>
-    <lastmod>2026-10-12T07:13:52.582Z</lastmod>
+    <loc>https://mattdiekmann.github.io/tidytuesday2.html</loc>
+    <lastmod>2026-09-29T01:20:29.228Z</lastmod>
   </url>
   <url>
-    <loc>https://mattdiekmann.github.io/datasciencewebsite/tidytuesday1.html</loc>
+    <loc>https://mattdiekmann.github.io/tidytuesday1.html</loc>
     <lastmod>2026-09-29T01:03:07.994Z</lastmod>
   </url>
   <url>
-    <loc>https://mattdiekmann.github.io/datasciencewebsite/tidytuesday2.html</loc>
-    <lastmod>2026-09-29T01:20:29.228Z</lastmod>
+    <loc>https://mattdiekmann.github.io/sharktank.html</loc>
+    <lastmod>2026-10-12T07:13:52.582Z</lastmod>
+  </url>
+  <url>
+    <loc>https://mattdiekmann.github.io/index.html</loc>
+    <lastmod>2026-11-05T22:15:53.409Z</lastmod>
   </url>
 </urlset>
