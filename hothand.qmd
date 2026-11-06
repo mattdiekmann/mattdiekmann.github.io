@@ -254,7 +254,5 @@ This simulation study initially investigated whether Stephen Curry exhibited a h
 
 ## Data Source
 
-## Data Source
-
 Crawles. (n.d.). *Spark NBA Analytics* [GitHub repository].
 [GitHub](https://github.com/crawles/spark-nba-analytics).
