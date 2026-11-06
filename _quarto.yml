@@ -9,6 +9,8 @@ website:
         href: index.qmd
       - text: "Shark Tank"
         href: sharktank.qmd
+      - text: "Hot Hand"
+        href: hothand.qmd
       - text: "Data Viz"
         menu:
           - text: "TidyTuesday 1"
