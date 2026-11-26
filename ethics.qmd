@@ -1,0 +1,50 @@
+
+---
+title: "Data Ethics: Bias in Healthcare Algorithms"
+author: "Matthew Diekmann"
+format: html
+---
+
+## Background
+
+One of the main purposes of predictive algorithms in healthcare is to help determine which patients need additional care. Since hospitals have limited resources, it makes sense to use data to identify patients who are most at risk. However, an interesting ethical dilemma arises when the variable being predicted does not accurately represent what we are actually interested in.
+
+In a 2019 study, Obermeyer and his colleagues examined a widely used healthcare algorithm that predicted how much money a patient would spend on healthcare in the future. The assumption was that patients who were sicker would generally spend more money on healthcare and therefore be assigned a higher risk score.
+
+The problem with this assumption is that not everyone has equal access to healthcare. Two patients could be equally sick, but one might spend considerably less money because they cannot afford frequent doctor visits or treatment. As a result, the algorithm might assign that patient a lower risk score despite their need for additional care.
+
+The researchers found that Black patients were generally sicker than White patients with the same risk score. The researchers estimated that correcting this bias would increase the percentage of Black patients selected for additional care from 17.7% to 46.5%.
+
+## Ethical Considerations
+
+### Choice of Variables
+
+From a statistical perspective, I think the most interesting part of this example is the choice of response variable. The algorithm was designed to predict healthcare spending, when the information that healthcare providers really wanted was how much care a patient needed. While these two variables are certainly related, they are not interchangeable. A model could be extremely accurate in predicting healthcare costs while still doing a poor job of identifying which patients are the sickest. This demonstrates the importance of clearly identifying the objective of a data science project before developing a model.
+
+### Racial and Socioeconomic Bias
+
+One question I had while reading about this study was whether the algorithm was actually discriminating based on race or whether it was discriminating against lower-income patients. Since race and income are correlated, it is difficult to completely separate these two explanations. The study discusses both economic barriers to healthcare and race-related differences in healthcare experiences as potential explanations (Obermeyer et al., 2019). It would be interesting to compare patients of different races while controlling for both income and health conditions. Regardless of the exact cause, the algorithm disproportionately disadvantaged Black patients. This shows how existing inequalities can be reflected in an algorithm even when race is not explicitly included as a predictor.
+
+### Transparency
+
+Another issue is whether the people using the algorithm fully understand what it is predicting. If a doctor is given a patient's risk score, they might reasonably assume that a higher score means the patient is in worse health. In this case, however, a higher score actually represents higher predicted healthcare spending. I think it is the responsibility of the data scientists developing these algorithms to clearly communicate what their models are measuring and where their limitations lie. This is especially important when the results are being used to make decisions that directly affect people's lives.
+
+### Being Open to Changing Methods
+
+One positive aspect of this example is that the company was willing to address the problem once it was identified. According to Ledford (2019), in an article published in *Nature*, Optum, the company behind the algorithm, replicated the researchers' findings and worked with them to explore ways of reducing the bias. This relates to the Data Values and Principles manifesto's emphasis on being open to changing methods and conclusions in response to new knowledge. While it would have been better to identify the issue before the algorithm was widely used, the company's willingness to reconsider its approach was an important step.
+
+## Why It Matters
+
+I think this example is particularly interesting because the algorithm was not necessarily bad at making predictions. Rather, the problem was what it was being asked to predict in the first place.
+
+Healthcare organizations benefit from being able to identify patients who are likely to have high medical expenses, potentially allowing them to reduce future costs. However, patients who already have limited access to healthcare may be overlooked by this approach, which could further contribute to existing inequalities.
+
+I do not think it is necessary to assume that the developers intended to discriminate against any particular group. The financial incentives of healthcare organizations help explain why spending was a useful variable to predict, but that does not mean it was the most ethical variable to use when distributing care.
+
+Ultimately, this example demonstrates that evaluating a model based solely on its predictive accuracy is not enough. As data scientists, we also need to consider whether we are asking the right questions, whether our variables accurately represent what we want to measure, and who might be negatively affected by the decisions made using our models.
+
+## References
+
+Obermeyer, Z., Powers, B., Vogeli, C., & Mullainathan, S. (2019). Dissecting racial bias in an algorithm used to manage the health of populations. *Science, 366*(6464), 447–453. <https://doi.org/10.1126/science.aax2342>
+
+Ledford, H. (2019). Millions of black people affected by racial bias in health-care algorithms. *Nature, 574*, 608–609. <https://doi.org/10.1038/d41586-019-03228-6>

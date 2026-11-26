@@ -17,6 +17,8 @@ website:
             href: tidytuesday1.qmd
           - text: "TidyTuesday 2"
             href: tidytuesday2.qmd
+      - href: ethics.qmd
+        text: Data Ethics
 
 format:
   html:

@@ -9,11 +9,11 @@ Hello! I'm Matthew Diekmann, junior math major at Pomona College.
 
 Welcome to my website!
 
-This website was created for my Foundations of Data Science course and includes two data visualization projects using datasets from TidyTuesday.
+This website was created for my Foundations of Data Science course and includes a variety of projects.
 
 ## What you'll find here
 
-The **Shark Tank** tab has a text analysis of 415 *Shark Tank* pitches, attempting to discover trends for which types of products and pitches earn deals. The **Data Viz** menu contains two TidyTuesday analyses that use R to explore and visualize different datasets.
+The **Shark Tank** tab has a text analysis of 415 *Shark Tank* pitches, attempting to discover trends for which types of products and pitches earn deals. The **Data Viz** menu contains two TidyTuesday analyses that use R to explore and visualize different datasets. The **Hot Hand** tab contains my analysis of Steph Curry's first MVP season, looking for evidence of the hot hand phenomenon. The **Data Ethics** tab explores bias in healthcare algorithms, specifically how using predicted healthcare spending to allocate medical care can contribute to racial and socioeconomic disparities.
 
 ## GitHub
 
